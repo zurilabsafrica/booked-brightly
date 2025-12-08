@@ -12,12 +12,20 @@ const badgeVariants = cva(
         secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
         destructive: "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
         outline: "text-foreground",
+        // Custom variants for Kitabu
+        kicd: "border-transparent bg-success/15 text-success font-medium",
+        accent: "border-transparent bg-accent/15 text-accent font-medium",
+        available: "border-transparent bg-success/15 text-success",
+        "low-stock": "border-transparent bg-warning/15 text-warning",
+        "out-of-stock": "border-transparent bg-destructive/15 text-destructive",
+        grade: "border-transparent bg-primary/10 text-primary",
+        condition: "border-transparent bg-muted text-muted-foreground",
       },
     },
     defaultVariants: {
       variant: "default",
     },
-  },
+  }
 );
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {}
