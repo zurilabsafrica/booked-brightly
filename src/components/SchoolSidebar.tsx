@@ -1,33 +1,33 @@
-import { Link, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { 
-  LayoutDashboard, 
-  Package, 
-  Users, 
-  FileText, 
-  Settings,
-  Book,
-  LogOut,
-  ChevronLeft,
-  School
-} from 'lucide-react';
+import { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import {
+  Book,
+  LayoutDashboard,
+  Package,
+  Users,
+  FileText,
+  LogOut,
+  Menu,
+  X,
+  ChevronRight,
+  School,
+} from 'lucide-react';
+import { toast } from 'sonner';
 
-interface SchoolSidebarProps {
-  collapsed: boolean;
-  onToggle: () => void;
-}
-
-const SchoolSidebar = ({ collapsed, onToggle }: SchoolSidebarProps) => {
+const SchoolSidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { signOut, user } = useAuth();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard', href: '/schools' },
     { icon: Package, label: 'Bulk Orders', href: '/schools/orders' },
-    { icon: Users, label: 'Distribution', href: '/schools/distribution' },
+    { icon: Users, label: 'Class Distribution', href: '/schools/distribution' },
     { icon: FileText, label: 'Invoices', href: '/schools/invoices' },
-    { icon: Settings, label: 'Settings', href: '/schools/settings' },
   ];
 
   const isActive = (href: string) => {
@@ -35,78 +35,128 @@ const SchoolSidebar = ({ collapsed, onToggle }: SchoolSidebarProps) => {
     return location.pathname.startsWith(href);
   };
 
-  return (
-    <aside 
-      className={cn(
-        "h-screen bg-sidebar text-sidebar-foreground flex flex-col transition-all duration-300 sticky top-0",
-        collapsed ? "w-16" : "w-64"
-      )}
-    >
+  const handleSignOut = async () => {
+    const { error } = await signOut();
+    if (error) {
+      toast.error('Failed to sign out');
+    } else {
+      toast.success('Signed out successfully');
+      navigate('/');
+    }
+  };
+
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className="p-4 border-b border-sidebar-border">
-        <Link to="/schools" className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-sidebar-accent flex items-center justify-center flex-shrink-0">
-            <School className="w-5 h-5" />
+      <div className="p-6 border-b border-sidebar-border">
+        <Link to="/" className="flex items-center gap-2">
+          <div className="w-10 h-10 rounded-xl bg-sidebar-primary/20 flex items-center justify-center">
+            <School className="w-5 h-5 text-sidebar-primary" />
           </div>
-          {!collapsed && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <span className="font-display font-bold text-lg">School Portal</span>
-              <p className="text-xs text-sidebar-foreground/70">Nairobi Primary</p>
-            </motion.div>
-          )}
+          <div>
+            <span className="font-display font-bold text-lg text-sidebar-foreground">Kitabu</span>
+            <span className="block text-xs text-sidebar-foreground/60">School Portal</span>
+          </div>
         </Link>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 p-3 space-y-1">
+      {/* Nav Items */}
+      <nav className="flex-1 p-4 space-y-1">
         {navItems.map((item) => (
-          <Link key={item.href} to={item.href}>
-            <motion.div
-              whileHover={{ x: 4 }}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors",
-                isActive(item.href)
-                  ? "bg-sidebar-accent text-sidebar-foreground"
-                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-              )}
-            >
-              <item.icon className="w-5 h-5 flex-shrink-0" />
-              {!collapsed && (
-                <span className="font-medium text-sm">{item.label}</span>
-              )}
-            </motion.div>
+          <Link
+            key={item.href}
+            to={item.href}
+            onClick={() => setMobileOpen(false)}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+              isActive(item.href)
+                ? 'bg-sidebar-primary text-sidebar-primary-foreground'
+                : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+            }`}
+          >
+            <item.icon className="w-5 h-5" />
+            {item.label}
+            {isActive(item.href) && (
+              <ChevronRight className="w-4 h-4 ml-auto" />
+            )}
           </Link>
         ))}
       </nav>
 
-      {/* Footer */}
-      <div className="p-3 border-t border-sidebar-border space-y-1">
-        <Link to="/">
-          <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors">
-            <Book className="w-5 h-5 flex-shrink-0" />
-            {!collapsed && <span className="font-medium text-sm">Browse Catalog</span>}
+      {/* User Section */}
+      <div className="p-4 border-t border-sidebar-border">
+        <div className="flex items-center gap-3 px-4 py-3 mb-2">
+          <div className="w-9 h-9 rounded-full bg-sidebar-accent flex items-center justify-center text-sm font-semibold text-sidebar-accent-foreground">
+            {user?.email?.charAt(0).toUpperCase() || 'U'}
           </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-sidebar-foreground truncate">
+              {user?.email || 'User'}
+            </p>
+            <p className="text-xs text-sidebar-foreground/60">School Admin</p>
+          </div>
+        </div>
+        <Link to="/catalog" className="block mb-1">
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+          >
+            <Book className="w-4 h-4 mr-2" />
+            Browse Catalog
+          </Button>
         </Link>
-        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors">
-          <LogOut className="w-5 h-5 flex-shrink-0" />
-          {!collapsed && <span className="font-medium text-sm">Sign Out</span>}
-        </button>
+        <Button
+          variant="ghost"
+          className="w-full justify-start text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+          onClick={handleSignOut}
+        >
+          <LogOut className="w-4 h-4 mr-2" />
+          Sign Out
+        </Button>
       </div>
+    </div>
+  );
 
-      {/* Collapse Button */}
+  return (
+    <>
+      {/* Mobile Toggle */}
       <Button
         variant="ghost"
         size="icon"
-        onClick={onToggle}
-        className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-sidebar border border-sidebar-border shadow-md hover:bg-sidebar-accent"
+        className="fixed top-4 left-4 z-50 lg:hidden bg-card shadow-md"
+        onClick={() => setMobileOpen(!mobileOpen)}
       >
-        <ChevronLeft className={cn("w-4 h-4 transition-transform", collapsed && "rotate-180")} />
+        {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </Button>
-    </aside>
+
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex flex-col w-64 fixed inset-y-0 left-0 bg-sidebar border-r border-sidebar-border">
+        <SidebarContent />
+      </aside>
+
+      {/* Mobile Sidebar */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
+              onClick={() => setMobileOpen(false)}
+            />
+            <motion.aside
+              initial={{ x: -280 }}
+              animate={{ x: 0 }}
+              exit={{ x: -280 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed inset-y-0 left-0 w-64 bg-sidebar border-r border-sidebar-border z-50 lg:hidden"
+            >
+              <SidebarContent />
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 
