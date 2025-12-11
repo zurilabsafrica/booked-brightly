@@ -2,6 +2,9 @@ import { Link } from 'react-router-dom';
 import { Book, Facebook, Twitter, Instagram, Mail, Phone, MapPin } from 'lucide-react';
 
 const Footer = () => {
+  // 1. Get the current year once for the component
+  const currentYear = new Date().getFullYear(); 
+
   return (
     <footer className="bg-primary text-primary-foreground">
       <div className="container mx-auto px-4 py-12 md:py-16">
@@ -111,8 +114,9 @@ const Footer = () => {
 
         {/* Bottom Bar */}
         <div className="mt-12 pt-6 border-t border-primary-foreground/20 flex flex-col md:flex-row justify-between items-center gap-4">
+          {/* Dynamic Copyright Year Implementation */}
           <p className="text-primary-foreground/60 text-sm">
-            © 2024 Kitabu. All rights reserved.
+            © {currentYear} Kitabu. All rights reserved.
           </p>
           <div className="flex items-center gap-6 text-sm text-primary-foreground/60">
             <Link to="/terms" className="hover:text-primary-foreground transition-colors">Terms</Link>
