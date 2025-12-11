@@ -10,6 +10,7 @@ import Onboarding from "./pages/Onboarding";
 import Cart from "./pages/Cart";
 import Dashboard from "./pages/Dashboard";
 import HowItWorks from "./pages/HowItWorks";
+import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
 // School Portal Pages
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/cart" element={<Cart />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
+            <Route path="/auth" element={<Auth />} />
             
             {/* School Portal Routes */}
             <Route path="/schools" element={<SchoolLayout />}>
